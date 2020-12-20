@@ -1,84 +1,66 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import styles from './PhoneBook.module.css';
 import ContactForm from '../ContactForm/ContactForm';
 import Filter from '../Filter/Filter';
 import ContactList from '../ContactList/ContactList';
+import styles from './PhoneBook.module.css';
 
-class PhoneBook extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      this.setContactsToLocalStorage();
-    }
-  }
-
-  componentDidMount() {
-    this.setState({ contacts: this.getContactsFromLocalStorage() });
-  }
-
-  setContactsToLocalStorage = () => {
-    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-  };
-
-  getContactsFromLocalStorage = () => {
+function PhoneBook() {
+  const getContactsFromLocalStorage = () => {
     const localStorageData = JSON.parse(localStorage.getItem('contacts'));
     return localStorageData ? localStorageData : [];
   };
 
-  addContact = newContact => {
-    this.setState(({ contacts }) => {
-      return { contacts: [...contacts, newContact] };
-    });
+  const [contacts, setContacts] = useState(() => getContactsFromLocalStorage());
+  const [filter, setFilter] = useState('');
+
+  useEffect(() => {
+    const setContactsToLocalStorage = () => {
+      localStorage.setItem('contacts', JSON.stringify(contacts));
+    };
+
+    return () => setContactsToLocalStorage();
+  }, [contacts]);
+
+  const addContact = newContact => {
+    setContacts([...contacts, newContact]);
   };
 
-  onChange = event => {
-    const { name, value } = event.target;
-    this.setState({ [name]: value });
+  const onChange = event => {
+    const { value } = event.target;
+    setFilter(value);
   };
 
-  removeContactById = idToRemove => {
-    const { contacts } = this.state;
-    this.setState({ contacts: contacts.filter(({ id }) => idToRemove !== id) });
+  const removeContactById = idToRemove => {
+    setContacts(contacts.filter(({ id }) => idToRemove !== id));
   };
 
-  isExistContact = name => {
-    const { contacts } = this.state;
+  const isExistContact = name => {
     return contacts.some(contact => contact.name === name);
   };
 
-  containerClasses = [styles.container];
+  const containerClasses = [styles.container];
 
-  render() {
-    const { filter, contacts } = this.state;
-    return (
-      <div className={this.containerClasses.join(' ')}>
-        <h1 className={styles.title}>Phonebook</h1>
-        <ContactForm
-          addContact={this.addContact}
-          isExistContact={this.isExistContact}
-        />
+  return (
+    <div className={containerClasses.join(' ')}>
+      <h1 className={styles.title}>Phonebook</h1>
+      <ContactForm addContact={addContact} isExistContact={isExistContact} />
 
-        {contacts.length > 0 && (
-          <>
-            <h2 className={styles['sub-title']}>Contacts</h2>
-            <Filter filter={filter} onChange={this.onChange} />
-            <ContactList
-              filter={filter}
-              contacts={contacts}
-              removeContactById={this.removeContactById}
-            />
-          </>
-        )}
-        <ToastContainer autoClose={3000} />
-      </div>
-    );
-  }
+      {contacts.length > 0 && (
+        <>
+          <h2 className={styles['sub-title']}>Contacts</h2>
+          <Filter filter={filter} onChange={onChange} />
+          <ContactList
+            filter={filter}
+            contacts={contacts}
+            removeContactById={removeContactById}
+          />
+        </>
+      )}
+      <ToastContainer autoClose={3000} />
+    </div>
+  );
 }
 
 export default PhoneBook;
