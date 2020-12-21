@@ -4,23 +4,18 @@ import 'react-toastify/dist/ReactToastify.css';
 import ContactForm from '../ContactForm/ContactForm';
 import Filter from '../Filter/Filter';
 import ContactList from '../ContactList/ContactList';
+import {
+  getContactsFromLocalStorage,
+  setContactsToLocalStorage,
+} from '../../api/localStorageApi';
 import styles from './PhoneBook.module.css';
 
 function PhoneBook() {
-  const getContactsFromLocalStorage = () => {
-    const localStorageData = JSON.parse(localStorage.getItem('contacts'));
-    return localStorageData ? localStorageData : [];
-  };
-
   const [contacts, setContacts] = useState(() => getContactsFromLocalStorage());
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    const setContactsToLocalStorage = () => {
-      localStorage.setItem('contacts', JSON.stringify(contacts));
-    };
-
-    return () => setContactsToLocalStorage();
+    setContactsToLocalStorage(contacts);
   }, [contacts]);
 
   const addContact = newContact => {
