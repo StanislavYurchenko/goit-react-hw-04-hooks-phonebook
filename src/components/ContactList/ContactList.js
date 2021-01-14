@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ContactListItem from '../ContactItemItem/ContactItemItem';
+import ContactListItem from '../ContactListItem/ContactListItem';
 import styles from './ContactList.module.css';
 
 function ContactList({ contacts, filter, removeContactById }) {
